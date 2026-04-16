@@ -1,21 +1,57 @@
-- name: Install PostgreSQL on backend
+- name: Install and configure PostgreSQL on backend
   hosts: backend
   become: yes
-
+ 
+  vars:
+    db_name: dbfapp
+    db_user: dbfuser
+    db_password: SterkWachtwoord123!
+ 
   tasks:
     - name: Update apt cache
       apt:
         update_cache: yes
-
+ 
     - name: Install PostgreSQL
       apt:
         name:
           - postgresql
           - postgresql-contrib
         state: present
-
+ 
     - name: Ensure PostgreSQL is running
       service:
         name: postgresql
         state: started
         enabled: true
+ 
+    - name: Allow PostgreSQL to listen on all addresses
+      lineinfile:
+        path: /etc/postgresql/14/main/postgresql.conf
+        regexp: '^#?listen_addresses'
+        line: "listen_addresses = '*'"
+      notify: restart postgres
+ 
+    - name: Allow frontend subnet in pg_hba.conf
+      lineinfile:
+        path: /etc/postgresql/14/main/pg_hba.conf
+        line: "host all all 10.0.1.0/24 md5"
+      notify: restart postgres
+ 
+    - name: Create database
+      become_user: postgres
+      postgresql_db:
+        name: "{{ db_name }}"
+ 
+    - name: Create user
+      become_user: postgres
+      postgresql_user:
+        name: "{{ db_user }}"
+        password: "{{ db_password }}"
+        priv: "{{ db_name }}:ALL"
+ 
+  handlers:
+    - name: restart postgres
+      service:
+        name: postgresql
+        state: restarted
