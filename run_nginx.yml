@@ -1,0 +1,20 @@
+- name: Run nginx container on frontend
+  hosts: frontend
+  become: yes
+  collections:
+    - community.docker
+
+  tasks:
+    - name: Pull nginx image
+      community.docker.docker_image:
+        name: nginx
+        source: pull
+
+    - name: Run nginx container
+      community.docker.docker_container:
+        name: nginx-web
+        image: nginx
+        state: started
+        restart_policy: always
+        published_ports:
+          - "80:80"
