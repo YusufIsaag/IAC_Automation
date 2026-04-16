@@ -98,6 +98,34 @@ resource "azurerm_network_security_rule" "frontend_allow_http" {
   network_security_group_name = azurerm_network_security_group.frontend_nsg.name
 }
 
+resource "azurerm_network_security_rule" "frontend_allow_grafana" {
+  name                        = "allow-grafana"
+  priority                    = 1020
+  direction                   = "Inbound"
+  access                      = "Allow"
+  protocol                    = "Tcp"
+  source_port_range           = "*"
+  destination_port_range      = "3000"
+  source_address_prefix       = "*"
+  destination_address_prefix  = "*"
+  resource_group_name         = data.azurerm_resource_group.rg.name
+  network_security_group_name = azurerm_network_security_group.frontend_nsg.name
+}
+
+resource "azurerm_network_security_rule" "frontend_allow_prometheus" {
+  name                        = "allow-prometheus"
+  priority                    = 1030
+  direction                   = "Inbound"
+  access                      = "Allow"
+  protocol                    = "Tcp"
+  source_port_range           = "*"
+  destination_port_range      = "9090"
+  source_address_prefix       = "*"
+  destination_address_prefix  = "*"
+  resource_group_name         = data.azurerm_resource_group.rg.name
+  network_security_group_name = azurerm_network_security_group.frontend_nsg.name
+}
+
 resource "azurerm_network_security_rule" "backend_allow_postgres" {
   name                        = "allow-postgres"
   priority                    = 1000
