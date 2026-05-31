@@ -17,7 +17,7 @@ echo "Step 4: Run NGINX container"
 ansible-playbook run_nginx.yml
 
 echo "Step 5: Install PostgreSQL"
-ansible-playbook install_postgres.yml
+ansible-playbook install_postgres.yml --ask-vault-pass
 
 echo "Step 6: Install node_exporter"
 ansible-playbook install_node_exporter.yml
